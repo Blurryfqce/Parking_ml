@@ -1,0 +1,33 @@
+name: Weekly Firebase Data Update
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'  # Every Monday at 6 AM UTC
+  workflow_dispatch:     # Allow manual triggering too
+
+jobs:
+  retrain:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.10
+
+      - name: Install dependencies
+        run: |
+          pip install -r backend/requirements.txt
+
+      - name: Write Firebase Key
+        run: |
+          echo "$FIREBASE_KEY_JSON" > backend/firebase_key.json
+        env:
+          FIREBASE_KEY_JSON: ${{ secrets.FIREBASE_KEY_JSON }}
+
+      - name: Run weekly update script
+        run: |
+          python backend/weekly_update.py

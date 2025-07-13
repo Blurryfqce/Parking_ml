@@ -15,20 +15,27 @@ def fetch_and_store_firebase_data():
         })
         firebase_initialized = True
 
-    # Reference to logs
-    ref = db.reference("parking_logs")
+    # Reference to hourly_occupancy
+    ref = db.reference("hourly_occupancy")
     logs = ref.get()
 
-    # Only use logs from the last 7 days
+    # Only use entries from the last 7 days
     cutoff = datetime.now() - timedelta(days=7)
     data = []
-    for entry_id, entry in logs.items():
-        timestamp_str = entry.get("timestamp")
-        status = entry.get("status")
-        if timestamp_str and status is not None:
-            ts = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
-            if ts >= cutoff:
-                data.append({"Datetime": timestamp_str, "Occupancy": status})
+
+    for timestamp_key, value in logs.items():
+        try:
+            # Convert key like "2025-07-12_15:00" to datetime
+            dt = datetime.strptime(timestamp_key, "%Y-%m-%d_%H:%M")
+            if dt >= cutoff:
+                occupancy = value.get("occupied")
+                if occupancy is not None:
+                    data.append({
+                        "Datetime": dt.strftime("%Y-%m-%d %H:%M:%S"),
+                        "Occupancy": occupancy
+                    })
+        except Exception as e:
+            print(f"⚠️ Error parsing entry {timestamp_key}: {e}")
 
     df = pd.DataFrame(data)
     collected_path = "backend/Collected_Data.csv"

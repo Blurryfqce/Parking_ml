@@ -16,21 +16,20 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.11
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
           pip install -r backend/requirements.txt
 
-      - name: Write Firebase Key
+      - name: Restore firebase_key.json from GitHub Secret
         run: |
-          echo "$FIREBASE_KEY_JSON" > backend/firebase_key.json
-        env:
-          FIREBASE_KEY_JSON: ${{ secrets.FIREBASE_KEY_JSON }}
+          echo "${{ secrets.FIREBASE_KEY }}" | base64 --decode > backend/firebase_key.json
 
       - name: Run weekly update script
         run: |
           python backend/weekly_update.py
+
       - name: 🚀 Restart Render Flask App
         run: |
           curl -X POST https://api.render.com/deploy/srv-d1mgp72li9vc739im2kg?key=IW94628ldj8

@@ -15,33 +15,37 @@ def fetch_and_store_firebase_data():
         })
         firebase_initialized = True
 
-    # Reference to hourly_occupancy
-    ref = db.reference("hourly_occupancy")
+    # Reference to logs
+    ref = db.reference("hourly_occupancy")  # <-- use the correct path
     logs = ref.get()
 
-    # Only use entries from the last 7 days
+    if not logs:
+        print("❌ No data found at 'hourly_occupancy'")
+        return
+
+    print(f"✅ Pulled {len(logs)} entries from Firebase")
+
+    # Only use logs from the last 7 days
     cutoff = datetime.now() - timedelta(days=7)
     data = []
-
-    for timestamp_key, value in logs.items():
+    for timestamp_key, entry in logs.items():
         try:
-            # Convert key like "2025-07-12_15:00" to datetime
-            dt = datetime.strptime(timestamp_key, "%Y-%m-%d_%H:%M")
-            if dt >= cutoff:
-                occupancy = value.get("occupied")
+            ts = datetime.strptime(timestamp_key, "%Y-%m-%d_%H:%M")  # based on your screenshot
+            if ts >= cutoff:
+                occupancy = entry.get("occupied")
                 if occupancy is not None:
                     data.append({
-                        "Datetime": dt.strftime("%Y-%m-%d %H:%M:%S"),
+                        "Datetime": ts.strftime("%Y-%m-%d %H:%M:%S"),
                         "Occupancy": occupancy
                     })
         except Exception as e:
-            print(f"⚠️ Error parsing entry {timestamp_key}: {e}")
+            print(f"⚠️ Skipping invalid entry {timestamp_key}: {e}")
 
     df = pd.DataFrame(data)
     collected_path = "backend/Collected_Data.csv"
 
     if df.empty:
-        print("⚠️ No new data found in Firebase.")
+        print("⚠️ No new data found in the last 7 days.")
     else:
         try:
             existing_df = pd.read_csv(collected_path)
@@ -52,3 +56,6 @@ def fetch_and_store_firebase_data():
         except FileNotFoundError:
             df.to_csv(collected_path, index=False)
             print("✅ Created Collected_Data.csv with Firebase data!")
+
+# CALL THE FUNCTION HERE
+fetch_and_store_firebase_data()

@@ -20,11 +20,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r backend/requirements.txt
+          pip install -r requirements.txt
 
       - name: Restore firebase_key.json from GitHub Secret
         run: |
-          echo "${{ secrets.FIREBASE_KEY }}" | base64 --decode > backend/firebase_key.json
+          echo "${{ secrets.FIREBASE_KEY }}" | base64 --decode > config/firebase_key.json
 
       - name: Run weekly update script
         run: |

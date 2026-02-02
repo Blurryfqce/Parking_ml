@@ -6,13 +6,13 @@ import pandas as pd
 app = Flask(__name__)
 CORS(app)
 
-# Total parking slots in your system
+# Total parking slots in system
 TOTAL_SPOTS = 4
 
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
-        # 🔁 Load model every time to ensure latest one is used
+        #Load model every time to ensure latest one is used
         model = joblib.load("backend/rf_parking_model2.pkl")
 
         content = request.json

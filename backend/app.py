@@ -13,7 +13,7 @@ TOTAL_SPOTS = 4
 def predict():
     try:
         #Load model every time to ensure latest one is used
-        model = joblib.load("backend/rf_parking_model2.pkl")
+        model = joblib.load("backend/rf_parking_model.pkl")
 
         content = request.json
         datetime_str = content["datetime"]

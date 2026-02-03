@@ -28,7 +28,7 @@ def train_model():
     model.fit(X, y)
 
     # Save model
-    joblib.dump(model, 'backend/rf_parking_model.pkl')
+    joblib.dump(model, 'backend/rf_parking_model.pkl2')
     print("Model trained and saved successfully.")
 
 train_model()
